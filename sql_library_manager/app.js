@@ -47,7 +47,7 @@ app.use(function(req, res, next) {
 app.use(function(err,req,res,next){
 
   res.locals.error = err
-  if (!err,status) {
+  if (!err.status) {
     err.status = 500
     err.message = 'Server Error'
 
