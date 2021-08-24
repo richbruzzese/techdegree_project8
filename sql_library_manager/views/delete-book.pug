@@ -1,0 +1,15 @@
+extends layout 
+
+block content 
+    h1 Delete Book 
+
+    p Title: #{book.title}
+    p Author: #{book.author}
+    if  book.genre
+        p Genre: #{book.genre}
+    if book.year
+        p Year: #{book.year} 
+
+    form(action='/books/' +book.id +'/delete', method='post')
+        a(href='/' class="button") Cancel 
+        input(type='submit' value='Confirm Deletion' class='button')
