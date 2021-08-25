@@ -45,7 +45,7 @@ app.use(function(req, res, next) {
 });
 
 // Global error handler for all other errors
-app.use(function(err,req,res,next){
+app.use(function(err, req, res, next){
 
   res.locals.error = err
   if (!err.status) {
