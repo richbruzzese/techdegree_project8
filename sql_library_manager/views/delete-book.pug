@@ -2,13 +2,8 @@ extends layout
 
 block content 
     h1 Delete Book 
-
-    p Title: #{book.title}
-    p Author: #{book.author}
-    if  book.genre
-        p Genre: #{book.genre}
-    if book.year
-        p Year: #{book.year} 
+    p Would you like to remove <strong>#{book.title}</strong> from the Library?
+    p.error Warning: This action is permanent
 
     form(action='/books/' +book.id +'/delete', method='post')
         a(href='/' class="button") Cancel 

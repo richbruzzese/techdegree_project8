@@ -34,7 +34,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/books', books);
 
-// error handler
+// Error handler to handle page not found issues
 app.use(function(req, res, next) {
   const err  = new Error()
   err.message = 'Page Not Found'
@@ -44,6 +44,7 @@ app.use(function(req, res, next) {
   
 });
 
+// Global error handler for all other errors
 app.use(function(err,req,res,next){
 
   res.locals.error = err

@@ -3,5 +3,7 @@ extends layout
 block content
   title= err.message
   h1= err.status
-  p Sorry, an error has occurred
+  p.error Sorry, an error has occurred
+    a(href='/' class="button") Back to Library 
   pre #{err.stack}
+  img.round(src='/images/koda-sad.png')

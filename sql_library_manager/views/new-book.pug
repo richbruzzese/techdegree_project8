@@ -6,10 +6,10 @@ block content
     
     form(action='new' , method="post")
         p 
-            label(for="title") * Title 
+            label(for="title") Title* 
             input(name='title' type='text' id="title")
         p 
-            label(for='author') * Author 
+            label(for='author') Author* 
             input(name='author' type='text' id="author")
         p 
             label(for='genre') Genre 
@@ -17,8 +17,11 @@ block content
         p 
             label(for='year') Year 
             input(name='year' type='text' id="year")
-        p
-            input(type='submit' value='Create New Book')
-        span
+
+        p 
+            sup * indicates required field
+
+        p.submit
+            input(type='submit' value='Create Book')
             a(class='button' href='/') Cancel
         

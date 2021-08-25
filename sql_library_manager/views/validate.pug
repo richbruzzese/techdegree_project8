@@ -1,6 +1,7 @@
 if(errors)
-  h2.errors Oops an error occurred!
+  h2.error Missing required information
   ul.error
     each error in errors
       li
-        =error.message
+        h4= error.message
+  p.error Re-input book information and try again

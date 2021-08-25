@@ -1,8 +1,10 @@
 var express = require('express');
 var router = express.Router();
 const Book = require('../models').Book
-// const Sequelize = require ('..models').Sequelize
+const Sequelize = require('sequelize')
+const Op = Sequelize.Op
 
+// asyncHandler to manage all asynch functions in routing
 function asyncHandler(cb){
   return async(req, res, next) => {
     try {
@@ -13,18 +15,68 @@ function asyncHandler(cb){
     }
   }
 }
-/* GET Books listing. */
-router.get('/', asyncHandler(async (req, res) => {
-  const books = await Book.findAll({order: [["createdAt", "DESC"]]})
-  res.render("index", { books, title: "Library" });
-}));
 
-/* GET new book form */
+//Router for /Books to handle view of book list and pagination
+router.get('/', asyncHandler(async(req, res)=>{
+  const page = parseInt(req.query.page)
+  !page || page <=0 ? res.redirect('?page=1') : null
+  const limit = 10
+  const {count, rows} = await Book.findAndCountAll({
+    order: [['createdAt', 'DESC']],
+    limit,
+    offset: (page -1) *limit
+  })
+  const pageCount = Math.ceil(count / limit)
+  page > pageCount ?
+  res.redirect(`?page=${pageCount}`) : null
+  let links = 1
+  res.render('index', {books: rows, pageCount, links})
+}))
+
+//Router to handle search function and update pages based on results
+router.get('/search', asyncHandler(async(req,res) =>{
+  const search = req.query.search.toLowerCase()
+  const page = parseInt(req.query.page)
+  !page || page <=0 ? res.redirect(`search?search=${search}&page=1`) : null
+  const limit = 10
+  const {count, rows} = await Book.findAndCountAll({
+    where:{
+      [Op.or]:[
+        {
+          title:{[Op.like]: `%${search}%`}
+        },
+        {
+          author:{[Op.like]: `%${search}%`}
+        },
+        {
+          genre:{[Op.like]: `%${search}%`}
+        },
+        {
+          year:{[Op.like]: `%${search}%`}
+        },
+      ]
+    },
+    order: [['createdAt', 'DESC']],
+    limit,
+    offset: (page -1) *limit
+  })
+  if(count > 0){
+    let links = 1
+    const pageCount = Math.ceil(count / limit)
+    page > pageCount ?
+    res.redirect(`?search=${search}&page=${pageCount}`) : null
+    res.render('index', {books: rows, pageCount, links, search})
+  }else{
+    res.render('book-not-found', {search})
+  }
+}))
+
+/* Route to generate the book creation form*/
 router.get('/new', (req, res) => {
   res.render("new-book", { book: {}, error: false, title: "New Book Entry" });
 });
 
-/* POST create Book. */
+/* POST route when submitting a new book. */
 router.post('/new', asyncHandler(async (req, res) => {
   let book;
   try {
@@ -33,20 +85,20 @@ router.post('/new', asyncHandler(async (req, res) => {
   } catch (error) {
     if(error.name === "SequelizeValidationError") { // checking the error
       book = await Book.build(req.body);
-      res.render("new-book", { book, error: error.errors, title: "New Book" })
+      res.render("new-book", { book, errors: error.errors, title: "New Book" })
     } else {
       throw error
     }  
   }
 }));
 
-/* Edit Book form. */
+/* Gets selected book and redirects to update form */
 router.get('/:id', asyncHandler(async(req, res) => {
   const book = await Book.findByPk(req.params.id);
     res.render("update-book", { book, title: "Edit Book", error: false});      
 }))
 
-// /* Update a Book. */
+// /* Handles the POST action to update the item. */
 router.post('/:id', asyncHandler(async (req, res) => {
   let book;
   try {
@@ -68,7 +120,7 @@ router.post('/:id', asyncHandler(async (req, res) => {
   }
 }));
 
-// /* Delete Book form. */
+// /* Route renders book deletion confirmation page */
 router.get('/:id/delete', asyncHandler(async (req, res) => {
   const book = await Book.findByPk(req.params.id);
   if(book) {
@@ -78,7 +130,7 @@ router.get('/:id/delete', asyncHandler(async (req, res) => {
   }
 }));
 
-// /* Delete individual Book. */
+// /* POST action to handle removal from the database. */
 router.post('/:id/delete', asyncHandler(async (req ,res) => {
   const book = await Book.findByPk(req.params.id);
   if(book) {
