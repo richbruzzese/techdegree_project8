@@ -40,7 +40,7 @@ app.use(function(req, res, next) {
   err.message = 'Page Not Found'
   err.status = 404
   console.log('404 page not found')
-  res.render('error', {err})
+  res.render('page-not-found', {err})
   
 });
 
